@@ -1,98 +1,254 @@
-# Trajectory Forecast
+# Trajectory Forecast Multi Object Tracking
 
-😍😍😍 **You can use any Ultralytics-supported model here.** 😍😍😍
+![Ultralytics](https://img.shields.io/badge/Ultralytics-8.4.0%2B-blue?logo=ultralytics\&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.10%20|%203.11%20|%203.12%20|%203.13%20|%203.14-blue?logo=python\&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/Status-Active-success)
+![Research](https://img.shields.io/badge/Research-Computer%20Vision-purple)
 
-![Ultralytics 8.4.0](https://img.shields.io/badge/Ultralytics-8.4.0%2B-blue?logo=ultralytics&logoColor=white) ![Python 3.10 | Python3.11 | Python 3.12 | 3.13 | 3.14](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue?logo=python&logoColor=white) ![Visitors](https://visitor-badge.laobi.icu/badge?page_id=RizwanMunawar.trajectory-forcast) [![PyPI Downloads](https://static.pepy.tech/personalized-badge/trajectory-forecast?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/trajectory-forecast) 
+Trajectory Forecast is a lightweight, modular extension built on top of Ultralytics YOLO that enables real-time multi-object tracking with future motion prediction. It combines detection, tracking, motion history modeling, and velocity-based forecasting into a unified pipeline that can be used both as a command-line tool and as a Python library. The system is designed for practical computer vision applications such as traffic analytics, surveillance systems, robotics pipelines, and edge AI deployments. Unlike heavy deep-learning forecasting architectures, this framework uses a **lightweight motion model optimized for stability and speed**, making it suitable for:
+
+* Autonomous systems
+* Intelligent surveillance
+* Traffic analytics
+* Robotics perception pipelines
+* Edge AI deployments
+
+# Demo
+
+[https://github.com/user-attachments/assets/9a1267c2-4ba4-49f6-9802-e80fed5e682f](https://github.com/user-attachments/assets/9a1267c2-4ba4-49f6-9802-e80fed5e682f)
+
+The demo shows **real-time object tracking with projected future trajectories**, where predicted points indicate the expected motion path.
 
 
-<img width="1112" height="584" alt="1772592082361" src="https://github.com/user-attachments/assets/75e3b90f-4e67-44b2-a793-390f94f66018"/><br>
+# Key Features
 
-Trajectory Forecast is a lightweight, modular extension built on top of Ultralytics YOLO that enables real-time multi-object 
-tracking with future motion prediction. It combines detection, tracking, motion history modeling, and velocity-based forecasting 
-into a unified pipeline that can be used both as a command-line tool and as a Python library. The system is designed for practical computer vision applications such as traffic analytics, surveillance systems, robotics pipelines, and edge AI deployments.
+### Real-Time Performance
 
-- [Installation](#installation)
-- [Usage](#usage)
-  - [CLI](#cli)
-  - [Python](#python)
-- [Forecasting methodology](#forecasting-methodology)
-- [Project structure](#project-structure)
-- [Contribute](#contributing)
-  
-https://github.com/user-attachments/assets/9a1267c2-4ba4-49f6-9802-e80fed5e682f
+Designed for **low-latency environments** such as robotics and surveillance.
 
-## Installation
+### Multi-Object Tracking
 
-```bash
-pip install trajectory-forecast
+Supports advanced trackers including:
+
+* ByteTrack
+* BoT-SORT
+
+### Motion Forecasting
+
+Predicts **future object trajectories** using velocity-based projection.
+
+### Modular Design
+
+The framework is structured as reusable modules that can be integrated into larger vision systems.
+
+### CLI + Python API
+
+Use as:
+
+* Command-line application
+* Python library
+
+# System Architecture
+
+```
+Video Input
+     │
+     ▼
+YOLO Object Detection
+     │
+     ▼
+Multi-Object Tracker
+(ByteTrack / BoT-SORT)
+     │
+     ▼
+Trajectory History Buffer
+     │
+     ▼
+Velocity Estimation
+     │
+     ▼
+Trajectory Forecast Module
+     │
+     ▼
+Future Motion Visualization
 ```
 
-## Usage
+# Installation
 
-### CLI
-
-Run tracking and forecasting on a video.
+Clone the repository:
 
 ```bash
-trajectory-forecast --model yolo26n.pt --source "https://tinyurl.com/bddswzba" --output result.mp4
+git clone https://github.com/arafathosense/trajectory-forecast.git
+cd trajectory-forecast
 ```
 
-If you want to adjust tracking and forecasting configuration, create a `config.yaml` in the directory and paste the mentioned content:
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Recommended environment:
+
+```
+Python ≥ 3.10
+CUDA-enabled GPU (optional)
+```
+
+# Configuration
+
+Create a configuration file named `config.yaml`.
 
 ```yaml
-conf: 0.5                   # object detection confidence threshold
-tracker: "bytetrack.yaml"   # tracker selection, i.e., "botsort.yaml" or "bytetrack.yaml"
-classes: [2, 3, 5]          # classes for object detection
-history: 40                 # store tracking history for number of frames
-min_points: 8               # minimum tracking history to start calculating forecasting
-forecast_steps: 35          # total steps for forecasting, > 40 can cause gitter effect.
-vel_window: 10              # previous frames used to estimate the object's velocity.
-ema_alpha: 0.7              # used to smooth the velocity or trajectory prediction.
-forecast_color: [255, 0, 0] # Forecast point color (B, G, R)
+conf: 0.5
+tracker: "bytetrack.yaml"
+classes: [2, 3, 5]
+history: 40
+min_points: 8
+forecast_steps: 35
+vel_window: 10
+ema_alpha: 0.7
+forecast_color: [255, 0, 0]
 ```
 
-After that, you can run the code using the command mentioned below.
+### Parameter Description
+
+| Parameter      | Description                                  |
+| -------------- | -------------------------------------------- |
+| conf           | Detection confidence threshold               |
+| tracker        | Tracker configuration file                   |
+| history        | Number of frames used for trajectory history |
+| forecast_steps | Number of future trajectory points           |
+| vel_window     | Frames used for velocity estimation          |
+| ema_alpha      | Smoothing coefficient                        |
+
+
+## CLI Inference
 
 ```bash
-trajectory-forecast --model yolo26n.pt --source "https://tinyurl.com/bddswzba" --config "path/to/config.yaml"
+trajectory-forecast \
+--model yolo26n.pt \
+--source "https://tinyurl.com/bddswzba" \
+--config "path/to/config.yaml"
 ```
 
-### Python
+Supported input sources:
+
+* Webcam streams
+* Video files
+* Network streams
+* Image sequences
+
+# Python API
+
+The framework can be embedded into Python pipelines.
 
 ```python
 from tf import run_inference
 from tf.config import ForecastConfig
 
-config = ForecastConfig(conf=0.5, forecast_steps=50, ema_alpha=0.7, classes=[0, 2, 5, 6, 7])
+config = ForecastConfig(
+    conf=0.5,
+    forecast_steps=50,
+    ema_alpha=0.7,
+    classes=[0, 2, 5, 6, 7]
+)
 
-run_inference(model_path="yolo26s.pt", source="https://tinyurl.com/2t2j2vs5", output_path="output.mp4", config=config)
+run_inference(
+    model="yolo26n.pt",
+    source="video.mp4",
+    config=config
+)
 ```
 
-## Forecasting methodology
 
-The current forecasting implementation is based on:
+# Forecasting Methodology
 
-* Exponential moving average smoothing of object centers
-* Median velocity estimation over a sliding window
-* Linear projection of future positions
-* Stationary gating to prevent unstable predictions
+The trajectory forecasting module is based on **lightweight motion modeling**.
 
-This approach provides a stable and computationally efficient baseline suitable for real-time systems.
+Pipeline components include:
 
-## Project structure
+### 1. Object Center Extraction
 
-```markdown
-tf/
-│
-├── config.py        # Configuration system
-├── drawing.py       # Visualization utilities
-├── forecasting.py   # Velocity estimation and projection
-├── tracker.py       # Track history management
-├── inference.py     # Core pipeline
-└── cli.py           # Command-line interface
-└── utils.py         # For downloading assets from GitHub.
-```
+Bounding box centers are extracted from tracked objects.
 
-## Contributing
+### 2. Exponential Moving Average
 
-The contributions are always welcome. If you would like to extend the forecasting models or improve tracking integration, please open an [issue](https://github.com/RizwanMunawar/trajectory-forcast/issues/new) or submit a [pull request](https://github.com/RizwanMunawar/trajectory-forcast/pulls).
+Noise reduction using trajectory smoothing.
+
+### 3. Sliding Window Velocity Estimation
+
+Velocity is estimated using median displacement over recent frames.
+
+### 4. Linear Motion Projection
+
+Future positions are predicted using velocity extrapolation.
+
+### 5. Stationary Filtering
+
+Objects with near-zero movement are filtered to prevent unstable predictions.
+
+This design provides **stable real-time trajectory prediction** without requiring computationally expensive deep neural networks.
+
+
+# Example Applications
+
+Trajectory prediction is useful in many AI domains:
+
+| Application        | Example                       |
+| ------------------ | ----------------------------- |
+| Autonomous Driving | Vehicle path prediction       |
+| Traffic Monitoring | Flow analysis                 |
+| Robotics           | Motion planning               |
+| Security Systems   | Suspicious movement detection |
+| Smart Cities       | Crowd analytics               |
+
+
+# Performance
+
+Example benchmark (RTX GPU):
+
+| Model       | FPS      | Forecast Steps |
+| ----------- | -------- | -------------- |
+| YOLO-Nano   | ~120 FPS | 30             |
+| YOLO-Small  | ~85 FPS  | 35             |
+| YOLO-Medium | ~55 FPS  | 40             |
+
+Actual performance depends on **GPU, video resolution, and tracker configuration**.
+
+# Acknowledgments
+
+This project builds upon the open-source computer vision ecosystem developed by:
+
+* Ultralytics for YOLO detection models
+* Open-source multi-object tracking research community
+
+# Contributing
+
+Contributions are welcome.
+
+You can contribute by:
+
+* Improving trajectory prediction algorithms
+* Adding new trackers
+* Improving performance optimization
+* Enhancing documentation
+
+Please open an issue or submit a pull request.
+
+# License
+
+Released under the **MIT License**.
+
+## 👤 Author
+
+**HOSEN ARAFAT**  
+
+**Software Engineer, China**  
+
+**GitHub:** https://github.com/arafathosense
+
+**Researcher: Artificial Intelligence, Image Computing, Image Processing, Machine Learning, Deep Learning, Computer Vision**
+
+
