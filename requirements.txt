@@ -1,0 +1,11 @@
+ultralytics
+opencv-python
+numpy
+pyyaml
+tqdm
+scipy
+filterpy
+lap
+cython
+matplotlib
+pillow
